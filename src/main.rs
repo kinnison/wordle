@@ -10,7 +10,7 @@ fn main() {
             panic!("Woah I don't know that word");
         }
         let guess = all_words.words_by_eliminate().next().unwrap();
-        println!("I guess {}", guess);
+        println!("I guess {} out of {} options", guess, all_words.len());
         println!("How did I do?  Tell me with:");
         println!("Not present: -");
         println!("present: +");
