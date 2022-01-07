@@ -105,10 +105,13 @@ impl Wordlist {
         // order words by most eliminations first
         let mut all_words: Vec<Word> = self.words.iter().copied().collect();
         all_words.sort_unstable_by_key(|k| {
-            self.words
-                .iter()
-                .filter(|w| w.0.iter().any(|c| !k.0.contains(c)))
-                .count()
+            (
+                self.words
+                    .iter()
+                    .filter(|w| w.0.iter().any(|c| !k.0.contains(c)))
+                    .count(),
+                k.0,
+            )
         });
         all_words.into_iter()
     }
