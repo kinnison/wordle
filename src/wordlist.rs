@@ -101,6 +101,18 @@ impl Wordlist {
         all_words.into_iter().rev()
     }
 
+    pub fn words_by_eliminate(&self) -> impl Iterator<Item = Word> {
+        // order words by most eliminations first
+        let mut all_words: Vec<Word> = self.words.iter().copied().collect();
+        all_words.sort_unstable_by_key(|k| {
+            self.words
+                .iter()
+                .filter(|w| w.0.iter().any(|c| !k.0.contains(c)))
+                .count()
+        });
+        all_words.into_iter()
+    }
+
     pub fn eliminate_char(&mut self, ch: u8) {
         self.words.retain(|w| !w.0.contains(&ch));
     }

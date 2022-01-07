@@ -9,7 +9,7 @@ fn main() {
         if all_words.len() == 0 {
             panic!("Woah I don't know that word");
         }
-        let guess = all_words.words_by_value().next().unwrap();
+        let guess = all_words.words_by_eliminate().next().unwrap();
         println!("I guess {}", guess);
         println!("How did I do?  Tell me with:");
         println!("Not present: -");
