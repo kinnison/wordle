@@ -5,7 +5,7 @@ fn main() {
     let mut all_words = Wordlist::load("wordlist").expect("Unable to load words");
     println!("Loaded {} words", all_words.len());
     all_words.print_letter_frequencies();
-    while all_words.len() > 1 {
+    while all_words.len() != 1 {
         if all_words.len() == 0 {
             panic!("Woah I don't know that word");
         }
@@ -15,25 +15,40 @@ fn main() {
         println!("Not present: -");
         println!("present: +");
         println!("exact: =");
+        println!("If wordle doesn't know the word, tell me with 'unknown'");
         let mark = loop {
             let mut buf = String::new();
             std::io::stdin()
                 .read_line(&mut buf)
                 .expect("Unable to read stdin?");
             let buf = buf.trim();
-            if buf.len() != 5 || !buf.chars().all(|c| ['-', '+', '='].contains(&c)) {
+            if buf != "unknown"
+                && (buf.len() != 5 || !buf.chars().all(|c| ['-', '+', '='].contains(&c)))
+            {
                 println!("For some reason I don't believe you, try again.");
             } else {
                 break buf.to_owned();
             }
         };
-        for (pos, res) in mark.chars().enumerate() {
-            match res {
-                '-' => all_words.eliminate_char(guess[pos]),
-                '=' => all_words.eliminate_non_exact(pos, guess[pos]),
-                '+' => all_words.eliminate_exact(pos, guess[pos]),
-                _ => unreachable!(),
+        if mark == "unknown" {
+            all_words.eliminate_non_dict(&guess);
+        } else {
+            let mut contains = Vec::new();
+            for (pos, res) in mark.chars().enumerate() {
+                match res {
+                    '-' => all_words.eliminate_char(guess[pos]),
+                    '=' => {
+                        all_words.eliminate_non_exact(pos, guess[pos]);
+                        contains.push(guess[pos])
+                    }
+                    '+' => {
+                        all_words.eliminate_exact(pos, guess[pos]);
+                        contains.push(guess[pos]);
+                    }
+                    _ => unreachable!(),
+                }
             }
+            all_words.eliminate_missing_any(&contains);
         }
     }
     println!(

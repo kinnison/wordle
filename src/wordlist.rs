@@ -127,4 +127,12 @@ impl Wordlist {
     pub fn eliminate_exact(&mut self, pos: usize, ch: u8) {
         self.words.retain(|w| w[pos] != ch);
     }
+
+    pub fn eliminate_non_dict(&mut self, word: &Word) {
+        self.words.remove(word);
+    }
+
+    pub fn eliminate_missing_any(&mut self, vals: &[u8]) {
+        self.words.retain(|w| vals.iter().all(|c| w.0.contains(c)));
+    }
 }
