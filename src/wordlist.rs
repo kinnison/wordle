@@ -132,7 +132,8 @@ impl Wordlist {
         self.words.remove(word);
     }
 
-    pub fn eliminate_missing_any(&mut self, vals: &[u8]) {
+    pub fn eliminate_missing_any(&mut self, vals: impl Iterator<Item = u8>) {
+        let vals = vals.collect::<Vec<_>>();
         self.words.retain(|w| vals.iter().all(|c| w.0.contains(c)));
     }
 }

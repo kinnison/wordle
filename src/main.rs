@@ -1,10 +1,13 @@
 mod wordlist;
+use std::collections::HashSet;
+
 use wordlist::*;
 
 fn main() {
     let mut all_words = Wordlist::load("wordlist").expect("Unable to load words");
     println!("Loaded {} words", all_words.len());
     all_words.print_letter_frequencies();
+    let mut contains = HashSet::new();
     while all_words.len() != 1 {
         if all_words.len() == 0 {
             panic!("Woah I don't know that word");
@@ -33,22 +36,28 @@ fn main() {
         if mark == "unknown" {
             all_words.eliminate_non_dict(&guess);
         } else {
-            let mut contains = Vec::new();
+            let mut to_eliminate = HashSet::new();
             for (pos, res) in mark.chars().enumerate() {
                 match res {
-                    '-' => all_words.eliminate_char(guess[pos]),
+                    '-' => {
+                        all_words.eliminate_exact(pos, guess[pos]);
+                        to_eliminate.insert(guess[pos]);
+                    }
                     '=' => {
                         all_words.eliminate_non_exact(pos, guess[pos]);
-                        contains.push(guess[pos])
+                        contains.insert(guess[pos]);
                     }
                     '+' => {
                         all_words.eliminate_exact(pos, guess[pos]);
-                        contains.push(guess[pos]);
+                        contains.insert(guess[pos]);
                     }
                     _ => unreachable!(),
                 }
             }
-            all_words.eliminate_missing_any(&contains);
+            for ch in to_eliminate.difference(&contains).copied() {
+                all_words.eliminate_char(ch);
+            }
+            all_words.eliminate_missing_any(contains.iter().copied());
         }
     }
     println!(
